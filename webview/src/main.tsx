@@ -84,16 +84,32 @@ const enableVConsole =
 if (enableVConsole) {
   void import('vconsole').then(({ default: VConsole }) => {
     new VConsole();
-    // 将 vConsole 按钮移到左上角，避免遮挡右下角的发送按钮
+    // 将 vConsole 按钮移到右上角边缘，缩小并降低透明度，避免遮挡其他元素
     setTimeout(() => {
-      const vcSwitch = document.getElementById('__vconsole') as HTMLElement;
-      if (vcSwitch) {
-        vcSwitch.style.left = '10px';
-        vcSwitch.style.right = 'auto';
-        vcSwitch.style.top = '10px';
-        vcSwitch.style.bottom = 'auto';
+      const vcContainer = document.getElementById('__vconsole') as HTMLElement;
+      if (vcContainer) {
+        const vcSwitch = vcContainer.querySelector('.vc-switch') as HTMLElement;
+        if (vcSwitch) {
+          // 放到右上角边缘
+          vcSwitch.style.right = '4px';
+          vcSwitch.style.left = 'auto';
+          vcSwitch.style.top = '4px';
+          vcSwitch.style.bottom = 'auto';
+          // 缩小尺寸
+          vcSwitch.style.transform = 'scale(0.7)';
+          vcSwitch.style.transformOrigin = 'top right';
+          // 降低透明度，hover 时恢复
+          vcSwitch.style.opacity = '0.3';
+          vcSwitch.style.transition = 'opacity 0.2s';
+          vcSwitch.addEventListener('mouseenter', () => {
+            vcSwitch.style.opacity = '1';
+          });
+          vcSwitch.addEventListener('mouseleave', () => {
+            vcSwitch.style.opacity = '0.3';
+          });
+        }
       }
-    }, 100);
+    }, 200);
   });
 }
 

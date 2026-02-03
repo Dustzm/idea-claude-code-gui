@@ -43,6 +43,11 @@
   --error-color: #f44336;
   --success-color: #4caf50;
   --context-bar-bg: #2f2f2f;
+  /* Claude 模式颜色 */
+  --mode-color-default: #D97D66;
+  --mode-color-acceptEdits: #CCCED1;
+  --mode-color-plan: #007ED8;
+  --mode-color-bypassPermissions: #E53935;
 }
 
 /* ============================================================
@@ -71,6 +76,11 @@
   --error-color: #e81123;
   --success-color: #107c10;
   --context-bar-bg: #f0f0f0;
+  /* Claude 模式颜色 */
+  --mode-color-default: #D97D66;
+  --mode-color-acceptEdits: #9E9E9E;
+  --mode-color-plan: #0078D4;
+  --mode-color-bypassPermissions: #D32F2F;
 }
 
 /* ============================================================
@@ -103,6 +113,33 @@
 .chat-input-box.is-resizing {
   border-color: var(--input-focus-border);
   box-shadow: 0 0 0 1px var(--input-focus-border);
+}
+
+/* ============================================================
+   Claude 模式边框颜色（仅 Claude provider 生效，聚焦时高亮）
+   ============================================================ */
+.chat-input-box[data-provider="claude"][data-mode="default"]:focus-within,
+.chat-input-box[data-provider="claude"][data-mode="default"].is-resizing {
+  border-color: var(--mode-color-default);
+  box-shadow: 0 0 0 1px var(--mode-color-default);
+}
+
+.chat-input-box[data-provider="claude"][data-mode="acceptEdits"]:focus-within,
+.chat-input-box[data-provider="claude"][data-mode="acceptEdits"].is-resizing {
+  border-color: var(--mode-color-acceptEdits);
+  box-shadow: 0 0 0 1px var(--mode-color-acceptEdits);
+}
+
+.chat-input-box[data-provider="claude"][data-mode="plan"]:focus-within,
+.chat-input-box[data-provider="claude"][data-mode="plan"].is-resizing {
+  border-color: var(--mode-color-plan);
+  box-shadow: 0 0 0 1px var(--mode-color-plan);
+}
+
+.chat-input-box[data-provider="claude"][data-mode="bypassPermissions"]:focus-within,
+.chat-input-box[data-provider="claude"][data-mode="bypassPermissions"].is-resizing {
+  border-color: var(--mode-color-bypassPermissions);
+  box-shadow: 0 0 0 1px var(--mode-color-bypassPermissions);
 }
 
 /* ============================================================
@@ -538,6 +575,7 @@
   min-height: 20px;
   max-height: 240px;
   overflow-y: auto;
+  cursor: text;
 }
 
 /* 代码片段标签容器 */
@@ -693,6 +731,7 @@
   line-height: 1.5;
   word-wrap: break-word;
   white-space: pre-wrap;
+  cursor: text;
 }
 
 .input-editable:empty::before {
@@ -1136,6 +1175,54 @@
 
 .stop-button:hover {
   background: #d32f2f;
+}
+
+/* ============================================================
+   Claude 发送按钮模式颜色（仅 Claude provider 生效）
+   ============================================================ */
+.chat-input-box[data-provider="claude"][data-mode="default"] .submit-button:not(.stop-button) {
+  background: var(--mode-color-default);
+}
+.chat-input-box[data-provider="claude"][data-mode="acceptEdits"] .submit-button:not(.stop-button) {
+  background: var(--mode-color-acceptEdits);
+  /* 浅色背景需要深色图标以提高对比度 */
+  color: #333333;
+}
+.chat-input-box[data-provider="claude"][data-mode="plan"] .submit-button:not(.stop-button) {
+  background: var(--mode-color-plan);
+}
+.chat-input-box[data-provider="claude"][data-mode="bypassPermissions"] .submit-button:not(.stop-button) {
+  background: var(--mode-color-bypassPermissions);
+}
+
+/* Claude 停止按钮模式颜色（仅 Claude provider 生效） */
+.chat-input-box[data-provider="claude"][data-mode="default"] .stop-button {
+  background: var(--mode-color-default);
+  color: #ffffff;
+}
+.chat-input-box[data-provider="claude"][data-mode="default"] .stop-button:hover {
+  background: #C56B55; /* 稍深的橙红色 */
+}
+.chat-input-box[data-provider="claude"][data-mode="acceptEdits"] .stop-button {
+  background: #9E9E9E; /* 稍深的灰色，比发送按钮深一点 */
+  color: #1a1a1a; /* 深色图标 */
+}
+.chat-input-box[data-provider="claude"][data-mode="acceptEdits"] .stop-button:hover {
+  background: #8A8A8A;
+}
+.chat-input-box[data-provider="claude"][data-mode="plan"] .stop-button {
+  background: var(--mode-color-plan);
+  color: #ffffff;
+}
+.chat-input-box[data-provider="claude"][data-mode="plan"] .stop-button:hover {
+  background: #0066B3; /* 稍深的蓝色 */
+}
+.chat-input-box[data-provider="claude"][data-mode="bypassPermissions"] .stop-button {
+  background: var(--mode-color-bypassPermissions);
+  color: #ffffff;
+}
+.chat-input-box[data-provider="claude"][data-mode="bypassPermissions"] .stop-button:hover {
+  background: #C62828; /* 稍深的红色 */
 }
 
 /* ============================================================

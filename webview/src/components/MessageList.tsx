@@ -1,6 +1,7 @@
 import { memo } from 'react';
 import type { TFunction } from 'i18next';
 import type { ClaudeMessage, ClaudeContentBlock, ToolResultBlock } from '../types';
+import type { PermissionMode } from './ChatInputBox/types';
 import { MessageItem } from './MessageItem';
 import WaitingIndicator from './WaitingIndicator';
 
@@ -10,6 +11,7 @@ interface MessageListProps {
   isThinking: boolean;
   loading: boolean;
   loadingStartTime: number | null;
+  permissionMode?: PermissionMode;
   t: TFunction;
   getMessageText: (message: ClaudeMessage) => string;
   getContentBlocks: (message: ClaudeMessage) => ClaudeContentBlock[];
@@ -24,6 +26,7 @@ export const MessageList = memo(function MessageList({
   isThinking,
   loading,
   loadingStartTime,
+  permissionMode,
   t,
   getMessageText,
   getContentBlocks,
@@ -57,7 +60,12 @@ export const MessageList = memo(function MessageList({
       })}
 
       {/* Loading indicator */}
-      {loading && <WaitingIndicator startTime={loadingStartTime ?? undefined} />}
+      {loading && (
+        <WaitingIndicator
+          startTime={loadingStartTime ?? undefined}
+          permissionMode={permissionMode}
+        />
+      )}
       <div ref={messagesEndRef} />
     </>
   );

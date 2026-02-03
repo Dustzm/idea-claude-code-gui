@@ -1415,6 +1415,7 @@ const App = () => {
             isThinking={isThinking}
             loading={loading}
             loadingStartTime={loadingStartTime}
+            permissionMode={permissionMode}
             t={t}
             getMessageText={getMessageText}
             getContentBlocks={getContentBlocks}

@@ -1,13 +1,20 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import type { PermissionMode } from './ChatInputBox/types';
 
 interface WaitingIndicatorProps {
   size?: number;
   /** 开始加载的时间戳（毫秒），用于在视图切换后保持计时连续 */
   startTime?: number;
+  /** 当前权限模式，用于显示对应的颜色 */
+  permissionMode?: PermissionMode;
 }
 
-export const WaitingIndicator = ({ size = 18, startTime }: WaitingIndicatorProps) => {
+export const WaitingIndicator = ({
+  size = 20,
+  startTime,
+  permissionMode = 'bypassPermissions'
+}: WaitingIndicatorProps) => {
   const { t } = useTranslation();
   const [dotCount, setDotCount] = useState(1);
   const [elapsedSeconds, setElapsedSeconds] = useState(() => {
@@ -55,11 +62,15 @@ export const WaitingIndicator = ({ size = 18, startTime }: WaitingIndicatorProps
   };
 
   return (
-    <div className="waiting-indicator">
-      <span className="waiting-spinner" style={{ width: size, height: size }} />
+    <div className="waiting-indicator" data-mode={permissionMode}>
+      <span className="waiting-spinner" style={{ width: size, height: size }}>
+        <span className="pulse-ring" />
+        <span className="pulse-ring pulse-ring-delay" />
+        <span className="pulse-core" />
+      </span>
       <span className="waiting-text">
-	        {t('chat.generatingResponse')}<span className="waiting-dots">{dots}</span>
-	        <span className="waiting-seconds">（{t('chat.elapsedTime', { time: formatElapsedTime(elapsedSeconds) })}）</span>
+        {t('chat.generatingResponse')}<span className="waiting-dots">{dots}</span>
+        <span className="waiting-seconds">（{t('chat.elapsedTime', { time: formatElapsedTime(elapsedSeconds) })}）</span>
       </span>
     </div>
   );

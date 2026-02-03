@@ -548,6 +548,10 @@ export const ChatInputBox = forwardRef<ChatInputBoxHandle, ChatInputBoxProps>(
       completionSelectedRef,
       submittedOnEnterRef,
       handleSubmit,
+      // Mode switching (Shift+Tab)
+      permissionMode,
+      currentProvider,
+      onModeSelect,
     });
 
     useControlledValueSync({
@@ -675,6 +679,8 @@ export const ChatInputBox = forwardRef<ChatInputBoxHandle, ChatInputBoxProps>(
     return (
       <div
         className={`chat-input-box ${isResizingInputBox ? 'is-resizing' : ''}`}
+        data-mode={permissionMode}
+        data-provider={currentProvider}
         onClick={focusInput}
         ref={containerRef}
         style={containerStyle}

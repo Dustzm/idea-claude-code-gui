@@ -22,64 +22,116 @@
     60%, 100% { content: '...'; }
 }
 
-/* 圆环旋转动画 */
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+/* ============================================================
+   Waiting Indicator - 脉冲光环动画
+   ============================================================ */
+
+/* 模式颜色变量 */
+.waiting-indicator {
+    --mode-color: #E53935; /* 默认红色（自动模式） */
+}
+.waiting-indicator[data-mode="default"] {
+    --mode-color: #D97D66;
+}
+.waiting-indicator[data-mode="acceptEdits"] {
+    --mode-color: #CCCED1;
+}
+.waiting-indicator[data-mode="plan"] {
+    --mode-color: #007ED8;
+}
+.waiting-indicator[data-mode="bypassPermissions"] {
+    --mode-color: #E53935;
 }
 
-/* Waiting Indicator 样式 */
+/* 容器布局 */
 .waiting-indicator {
     display: inline-flex;
     flex-direction: row;
     align-items: center;
     gap: 12px;
-    color: var(--vscode-foreground, #d4d4d4);
     padding: 14px 24px;
 }
 
+/* 旋转器容器 */
 .waiting-spinner {
     display: inline-block;
     position: relative;
     flex-shrink: 0;
 }
 
-.waiting-spinner::before,
-.waiting-spinner::after {
-    content: '';
+/* 脉冲扩散环 */
+.pulse-ring {
     position: absolute;
     top: 50%;
     left: 50%;
     width: 100%;
     height: 100%;
     border-radius: 50%;
-    border: 2px solid transparent;
-    border-top-color: #b0b0b0;
+    border: 2px solid var(--mode-color);
+    transform: translate(-50%, -50%) scale(0.8);
+    opacity: 0;
+    animation: pulse-expand 2s ease-out infinite;
+}
+
+.pulse-ring-delay {
+    animation-delay: 1s;
+}
+
+/* 中心发光核心 */
+.pulse-core {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 40%;
+    height: 40%;
+    border-radius: 50%;
+    background: var(--mode-color);
     transform: translate(-50%, -50%);
-    animation: waiting-spin 1s linear infinite;
+    box-shadow: 0 0 8px var(--mode-color), 0 0 16px var(--mode-color);
+    animation: pulse-glow 2s ease-in-out infinite;
 }
 
-.waiting-spinner::after {
-    width: 60%;
-    height: 60%;
-    border-top-color: #707070;
-    animation-duration: 0.8s;
-    animation-direction: reverse;
+/* 脉冲扩散动画 */
+@keyframes pulse-expand {
+    0% {
+        transform: translate(-50%, -50%) scale(0.8);
+        opacity: 0.8;
+    }
+    100% {
+        transform: translate(-50%, -50%) scale(1.5);
+        opacity: 0;
+    }
 }
 
-@keyframes waiting-spin {
-    0% { transform: translate(-50%, -50%) rotate(0deg); }
-    100% { transform: translate(-50%, -50%) rotate(360deg); }
+/* 核心发光动画 */
+@keyframes pulse-glow {
+    0%, 100% {
+        opacity: 0.6;
+        box-shadow: 0 0 8px var(--mode-color), 0 0 16px var(--mode-color);
+    }
+    50% {
+        opacity: 1;
+        box-shadow: 0 0 12px var(--mode-color), 0 0 24px var(--mode-color);
+    }
 }
 
+/* 文字样式 - 颜色跟随模式 */
 .waiting-text {
     font-size: 14px;
-    color: var(--vscode-descriptionForeground, #858585);
-    letter-spacing: 1px;
+    color: var(--mode-color);
+    letter-spacing: 0.5px;
+    opacity: 0.9;
 }
 
+/* 省略号容器 */
 .waiting-dots {
     display: inline-block;
-    min-width: 2em;
+    min-width: 1.5em;
     text-align: left;
+}
+
+/* 计时显示 */
+.waiting-seconds {
+    opacity: 0.7;
+    font-size: 12px;
 }

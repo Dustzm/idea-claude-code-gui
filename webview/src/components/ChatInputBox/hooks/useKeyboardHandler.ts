@@ -1,5 +1,6 @@
 import { useCallback } from 'react';
 import type { KeyboardEvent as ReactKeyboardEvent, MutableRefObject } from 'react';
+import type { PermissionMode } from '../types';
 
 interface CompletionWithKeyDown {
   isOpen: boolean;
@@ -34,6 +35,12 @@ export interface UseKeyboardHandlerOptions {
   completionSelectedRef: MutableRefObject<boolean>;
   submittedOnEnterRef: MutableRefObject<boolean>;
   handleSubmit: () => void;
+  /** Current permission mode (for Shift+Tab switching) */
+  permissionMode?: PermissionMode;
+  /** Current provider (mode switching only for Claude) */
+  currentProvider?: string;
+  /** Mode selection callback */
+  onModeSelect?: (mode: PermissionMode) => void;
 }
 
 /**
@@ -60,6 +67,9 @@ export function useKeyboardHandler({
   completionSelectedRef,
   submittedOnEnterRef,
   handleSubmit,
+  permissionMode,
+  currentProvider,
+  onModeSelect,
 }: UseKeyboardHandlerOptions) {
   const onKeyDown = useCallback(
     (e: ReactKeyboardEvent<HTMLDivElement>) => {
@@ -107,6 +117,21 @@ export function useKeyboardHandler({
         }
       }
 
+      // Handle Shift+Tab mode switching (Claude provider only)
+      if (e.key === 'Tab' && e.shiftKey && !isIMEComposing) {
+        // Only Claude provider supports mode switching
+        if (currentProvider === 'claude' && onModeSelect && permissionMode) {
+          e.preventDefault();
+          e.stopPropagation();
+
+          const modeOrder: PermissionMode[] = ['default', 'plan', 'acceptEdits', 'bypassPermissions'];
+          const currentIndex = modeOrder.indexOf(permissionMode);
+          const nextMode = modeOrder[(currentIndex + 1) % modeOrder.length];
+          onModeSelect(nextMode);
+          return;
+        }
+      }
+
       // Handle inline history completion (Tab key)
       if (e.key === 'Tab' && inlineCompletion) {
         const applied = inlineCompletion.applySuggestion();
@@ -148,6 +173,9 @@ export function useKeyboardHandler({
       submittedOnEnterRef,
       completionSelectedRef,
       handleSubmit,
+      permissionMode,
+      currentProvider,
+      onModeSelect,
     ]
   );
 
