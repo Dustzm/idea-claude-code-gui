@@ -82,7 +82,29 @@
     "clearCommandDescription": "Borrar historial de conversación e iniciar nueva sesión",
     "attachmentFile": "[Adjunto: {{fileName}}]",
     "attachmentsUploaded": "[Archivos adjuntos cargados]",
-    "streamingConnected": "Claude conectado, entendiendo tu pregunta"
+    "streamingConnected": "Claude conectado, entendiendo tu pregunta",
+    "generatingMessages": [
+      "Consultando los transistores",
+      "Convirtiendo cafeína en código",
+      "Reuniendo los bugs de Schrödinger",
+      "Pensando en binario",
+      "Consultando la bola de cristal",
+      "Compilando pensamientos a código",
+      "Energizando las neuronas",
+      "Consultando al oráculo",
+      "Pensando fuera de la caja",
+      "Computando con amor",
+      "Convirtiendo bugs en características",
+      "Depurando con el patito de goma",
+      "Funciona en mi máquina",
+      "Añadiendo más comentarios",
+      "Consultando Stack Overflow",
+      "Copiando y pegando...",
+      "Escribiendo poesía en Python",
+      "Contando chistes al código",
+      "Arreglando con más café",
+      "Buscando punto y coma perdido"
+    ]
   },
   "settings": {
     "title": "Configuración",

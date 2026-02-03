@@ -85,7 +85,32 @@
     "clearCommandDescription": "清除对话历史并新建会话",
     "attachmentFile": "[附件: {{fileName}}]",
     "attachmentsUploaded": "[已上传附件]",
-    "streamingConnected": "Claude 已成功连接，正在理解问题"
+    "streamingConnected": "Claude 已成功连接，正在理解问题",
+    "generatingMessages": [
+      "AI 祈祷中",
+      "正在咨询晶体管们",
+      "正在把咖啡因转化为代码",
+      "正在数着羊写代码",
+      "正在调试薛定谔的 bug",
+      "正在与量子计算机通信",
+      "正在给 AI 喂电",
+      "正在思考人生意义的同时写代码",
+      "正在用爱发电写代码",
+      "正在把 bug 变成 feature",
+      "正在教 AI 写代码",
+      "正在向机魂祈祷",
+      "正在检查是不是少了个分号",
+      "正在把「能跑就行」写入简历",
+      "正在把技术债称为「历史遗留问题」",
+      "正在和生产经理讨价还价",
+      "正在用 Python 写诗",
+      "正在向 CSDN 祈祷",
+      "正在把 TODO 改成「未来优化方向」",
+      "别急，好饭不怕晚，好 AI 不怕卡",
+      "正在装蒜(划掉)运算",
+      "正在从 0 和 1 的海洋里打捞答案",
+      "正在复制粘贴ing"
+    ]
   },
   "settings": {
     "title": "设置",

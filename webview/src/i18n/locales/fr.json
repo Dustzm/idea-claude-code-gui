@@ -82,7 +82,29 @@
     "clearCommandDescription": "Effacer l'historique et démarrer une nouvelle session",
     "attachmentFile": "[Pièce jointe: {{fileName}}]",
     "attachmentsUploaded": "[Pièces jointes téléchargées]",
-    "streamingConnected": "Claude connecté, en train de comprendre votre question"
+    "streamingConnected": "Claude connecté, en train de comprendre votre question",
+    "generatingMessages": [
+      "Consultant les transistors",
+      "Convertissant la caféine en code",
+      "Regroupant les bugs de Schrödinger",
+      "Pensant en binaire",
+      "Consultant la boule de cristal",
+      "Compilant les pensées en code",
+      "Alimentant les neurones",
+      "Consultant l'oracle",
+      "Pensant hors du cadre",
+      "Calculant avec amour",
+      "Transformant les bugs en fonctionnalités",
+      "Débogage avec le canard en plastique",
+      "Ça marche sur ma machine",
+      "Ajoutant des commentaires",
+      "Consultant Stack Overflow",
+      "Copier-coller...",
+      "Écrivant de la poésie en Python",
+      "Racontant des blagues au code",
+      "Résolvant avec plus de café",
+      "Cherchant le point-virgule perdu"
+    ]
   },
   "settings": {
     "title": "Paramètres",

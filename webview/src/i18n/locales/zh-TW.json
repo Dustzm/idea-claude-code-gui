@@ -82,7 +82,29 @@
     "clearCommandDescription": "清除對話歷史並新建會話",
     "attachmentFile": "[附件: {{fileName}}]",
     "attachmentsUploaded": "[已上傳附件]",
-    "streamingConnected": "Claude 已成功連接，正在理解問題"
+    "streamingConnected": "Claude 已成功連接，正在理解問題",
+    "generatingMessages": [
+      "正在施展程式魔法",
+      "正在諮詢電晶體們",
+      "正在把咖啡因轉化為程式碼",
+      "正在數著羊寫程式",
+      "正在除錯薛丁格的 bug",
+      "正在與量子電腦通訊",
+      "正在把想法編譯成程式碼",
+      "正在給 AI 喂電",
+      "正在思考人生意義的同時寫程式",
+      "正在用愛發電寫程式",
+      "正在把 bug 變成 feature",
+      "正在教 AI 寫程式",
+      "正在給程式碼講笑話",
+      "正在檢查是不是少個分號",
+      "正在把「能跑就行」寫入履歷",
+      "正在把技術債稱為「歷史遺留問題」",
+      "正在和產品經理討價還價",
+      "正在用 Python 寫詩",
+      "正在向 StackOverflow 祈禱",
+      "正在把 TODO 改成「未來優化方向」"
+    ]
   },
   "settings": {
     "title": "設定",
