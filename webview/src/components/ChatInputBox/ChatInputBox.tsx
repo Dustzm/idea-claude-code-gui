@@ -108,6 +108,8 @@ export const ChatInputBox = forwardRef<ChatInputBoxHandle, ChatInputBoxProps>(
       sdkStatusLoading = false, // SDK status loading state
       onInstallSdk,
       addToast,
+      messageQueue,
+      onRemoveFromQueue,
     }: ChatInputBoxProps,
     ref: React.ForwardedRef<ChatInputBoxHandle>
   ) => {
@@ -709,6 +711,8 @@ export const ChatInputBox = forwardRef<ChatInputBoxHandle, ChatInputBoxProps>(
           onRewind={onRewind}
           statusPanelExpanded={statusPanelExpanded}
           onToggleStatusPanel={onToggleStatusPanel}
+          messageQueue={messageQueue}
+          onRemoveFromQueue={onRemoveFromQueue}
         />
 
         {/* Input area */}

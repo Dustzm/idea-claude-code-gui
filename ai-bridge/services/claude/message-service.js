@@ -55,13 +55,12 @@ async function ensureBedrockSdk() {
 import { existsSync } from 'fs';
 import { readFile } from 'fs/promises';
 import { join } from 'path';
-import { homedir } from 'os';
 
 import { getMcpServersStatus, loadMcpServersConfig, getMcpServerTools as getMcpServerToolsImpl } from './mcp-status/index.js';
 
 import { setupApiKey, isCustomBaseUrl, loadClaudeSettings } from '../../config/api-config.js';
-import { selectWorkingDirectory } from '../../utils/path-utils.js';
-import { mapModelIdToSdkName } from '../../utils/model-utils.js';
+import { selectWorkingDirectory, getRealHomeDir, getClaudeDir } from '../../utils/path-utils.js';
+import { mapModelIdToSdkName, setModelEnvironmentVariables } from '../../utils/model-utils.js';
 import { AsyncStream } from '../../utils/async-stream.js';
 import { canUseTool, requestPlanApproval } from '../../permission-handler.js';
 import { persistJsonlMessage, loadSessionHistory } from './session-service.js';
@@ -164,7 +163,7 @@ function getRetryDelayMs(error) {
 }
 
 function getClaudeProjectSessionFilePath(sessionId, cwd) {
-  const projectsDir = join(homedir(), '.claude', 'projects');
+  const projectsDir = join(getClaudeDir(), 'projects');
   const sanitizedCwd = String(cwd || process.cwd()).replace(/[^a-zA-Z0-9]/g, '-');
   return join(projectsDir, sanitizedCwd, `${sessionId}.jsonl`);
 }
@@ -500,6 +499,11 @@ export async function sendMessage(message, resumeSessionId = null, cwd = null, p
     // 将模型 ID 映射为 SDK 期望的名称
     const sdkModelName = mapModelIdToSdkName(model);
     console.log('[DEBUG] Model mapping:', model, '->', sdkModelName);
+
+    // 🔧 FIX: 设置模型环境变量，让 SDK 知道具体使用哪个版本
+    // 例如：用户选择 claude-opus-4-6 时，需要设置 ANTHROPIC_DEFAULT_OPUS_MODEL=claude-opus-4-6
+    // 否则 SDK 只知道使用 'opus'，但不知道是 4.5 还是 4.6
+    setModelEnvironmentVariables(model);
 
 	    // Build systemPrompt.append content (for adding opened files context and agent prompt)
 	    // 使用统一的提示词管理模块构建 IDE 上下文提示词（包括智能体提示词）
@@ -1219,6 +1223,8 @@ export async function sendMessageWithAttachments(message, resumeSessionId = null
     };
 
     const sdkModelName = mapModelIdToSdkName(model);
+    // 🔧 FIX: 设置模型环境变量，让 SDK 知道具体使用哪个版本
+    setModelEnvironmentVariables(model);
     // 不再查找系统 CLI，使用 SDK 内置 cli.js
     console.log('[DEBUG] (withAttachments) Using SDK built-in Claude CLI (cli.js)');
 
@@ -1642,6 +1648,36 @@ ${payload.error}`;
  * 这个方法不需要发送消息，可以在插件启动时调用
  */
 export async function getSlashCommands(cwd = null) {
+  // 默认的命令列表（作为 fallback）
+  const defaultCommands = [
+    { name: '/help', description: 'Get help with using Claude Code' },
+    { name: '/clear', description: 'Clear conversation history' },
+    { name: '/compact', description: 'Toggle compact mode' },
+    { name: '/config', description: 'View or modify configuration' },
+    { name: '/cost', description: 'Show current session cost' },
+    { name: '/doctor', description: 'Run diagnostic checks' },
+    { name: '/init', description: 'Initialize a new project' },
+    { name: '/login', description: 'Log in to your account' },
+    { name: '/logout', description: 'Log out of your account' },
+    { name: '/memory', description: 'View or manage memory' },
+    { name: '/model', description: 'Change the current model' },
+    { name: '/permissions', description: 'View or modify permissions' },
+    { name: '/review', description: 'Review changes before applying' },
+    { name: '/status', description: 'Show current status' },
+    { name: '/terminal-setup', description: 'Set up terminal integration' },
+    { name: '/vim', description: 'Toggle vim mode' },
+  ];
+
+  // 创建一个超时 Promise
+  const withTimeout = (promise, ms, fallback) => {
+    return Promise.race([
+      promise,
+      new Promise((resolve) => {
+        setTimeout(() => resolve(fallback), ms);
+      })
+    ]);
+  };
+
   try {
     process.env.CLAUDE_CODE_ENTRYPOINT = process.env.CLAUDE_CODE_ENTRYPOINT || 'sdk-ts';
 
@@ -1650,8 +1686,7 @@ export async function getSlashCommands(cwd = null) {
 
     // 确保 HOME 环境变量设置正确
     if (!process.env.HOME) {
-      const os = await import('os');
-      process.env.HOME = os.homedir();
+      process.env.HOME = getRealHomeDir();
     }
 
     // 智能确定工作目录
@@ -1665,29 +1700,34 @@ export async function getSlashCommands(cwd = null) {
     // 创建一个空的输入流
     const inputStream = new AsyncStream();
 
-    // 动态加载 Claude SDK
-    const sdk = await ensureClaudeSdk();
+    // 动态加载 Claude SDK（带超时）
+    const loadSdkPromise = ensureClaudeSdk();
+    const sdk = await withTimeout(loadSdkPromise, 30000, null);
+
+    if (!sdk) {
+      console.log('[SLASH_COMMANDS]', JSON.stringify(defaultCommands));
+      return;
+    }
+
     const query = sdk?.query;
     if (typeof query !== 'function') {
-      throw new Error('Claude SDK query function not available. Please reinstall dependencies.');
+      console.log('[SLASH_COMMANDS]', JSON.stringify(defaultCommands));
+      return;
     }
 
     // 调用 query 函数，使用空输入流
-    // 这样不会发送任何消息，只是初始化 SDK 以获取配置
     const result = query({
       prompt: inputStream,
       options: {
         cwd: workingDirectory,
         permissionMode: 'default',
-        maxTurns: 0,  // 不需要进行任何轮次
+        maxTurns: 0,
         canUseTool: async () => ({
           behavior: 'deny',
           message: 'Config loading only'
         }),
-        // 明确启用默认工具集
         tools: { type: 'preset', preset: 'claude_code' },
         settingSources: ['user', 'project', 'local'],
-        // 捕获 SDK stderr 调试日志，帮助定位 CLI 初始化问题
         stderr: (data) => {
           if (data && data.trim()) {
             console.log(`[SDK-STDERR] ${data.trim()}`);
@@ -1696,30 +1736,33 @@ export async function getSlashCommands(cwd = null) {
       }
     });
 
-    // 立即关闭输入流，告诉 SDK 我们没有消息要发送
+    // 立即关闭输入流
     inputStream.done();
 
-    // 获取支持的命令列表
-    // SDK 返回的格式是 SlashCommand[]，包含 name 和 description
-    const slashCommands = await result.supportedCommands?.() || [];
+    // 获取支持的命令列表（带超时）
+    const getCommandsPromise = result.supportedCommands?.() || Promise.resolve([]);
+    const slashCommands = await withTimeout(getCommandsPromise, 15000, defaultCommands);
 
-    // 清理资源
-    await result.return?.();
+    // 清理资源（带超时，不阻塞）
+    withTimeout(result.return?.() || Promise.resolve(), 5000, null).catch(() => {});
 
-    // 输出命令列表（包含 name 和 description）
-    console.log('[SLASH_COMMANDS]', JSON.stringify(slashCommands));
+    // 输出命令列表
+    const finalCommands = slashCommands.length > 0 ? slashCommands : defaultCommands;
+    console.log('[SLASH_COMMANDS]', JSON.stringify(finalCommands));
 
     console.log(JSON.stringify({
       success: true,
-      commands: slashCommands
+      commands: finalCommands
     }));
 
   } catch (error) {
     console.error('[GET_SLASH_COMMANDS_ERROR]', error.message);
+    console.error('[GET_SLASH_COMMANDS_ERROR_STACK]', error.stack);
+    // 出错时返回默认命令列表，而不是空列表
+    console.log('[SLASH_COMMANDS]', JSON.stringify(defaultCommands));
     console.log(JSON.stringify({
-      success: false,
-      error: error.message,
-      commands: []
+      success: true, // 使用默认命令，不算失败
+      commands: defaultCommands
     }));
   }
 }
@@ -1821,8 +1864,7 @@ export async function rewindFiles(sessionId, userMessageId, cwd = null) {
         setupApiKey();
 
         if (!process.env.HOME) {
-          const os = await import('os');
-          process.env.HOME = os.homedir();
+          process.env.HOME = getRealHomeDir();
         }
 
         const workingDirectory = selectWorkingDirectory(cwd);
@@ -2036,7 +2078,7 @@ async function resolveRewindCandidateMessageIds(sessionId, cwd, providedMessageI
 
 async function readClaudeProjectSessionMessages(sessionId, cwd) {
   try {
-    const projectsDir = join(homedir(), '.claude', 'projects');
+    const projectsDir = join(getClaudeDir(), 'projects');
     const sanitizedCwd = (cwd || process.cwd()).replace(/[^a-zA-Z0-9]/g, '-');
     const sessionFile = join(projectsDir, sanitizedCwd, `${sessionId}.jsonl`);
     if (!existsSync(sessionFile)) {

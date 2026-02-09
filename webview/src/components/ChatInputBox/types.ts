@@ -244,6 +244,11 @@ export const CLAUDE_MODELS: ModelInfo[] = [
     description: 'Sonnet 4.5 · Use the default model',
   },
   {
+    id: 'claude-opus-4-6',
+    label: 'Opus 4.6',
+    description: 'Opus 4.6 · Latest and most capable',
+  },
+  {
     id: 'claude-opus-4-5-20251101',
     label: 'Opus 4.5',
     description: 'Opus 4.5 · Most capable for complex work',
@@ -260,9 +265,24 @@ export const CLAUDE_MODELS: ModelInfo[] = [
  */
 export const CODEX_MODELS: ModelInfo[] = [
   {
+    id: 'gpt-5.3-codex',
+    label: 'gpt-5.3-codex',
+    description: 'Latest frontier agentic coding model with enhanced capabilities.',
+  },
+  {
+    id: 'gpt-5.3',
+    label: 'gpt-5.3',
+    description: 'Latest frontier model with significant improvements.',
+  },
+  {
     id: 'gpt-5.2-codex',
     label: 'gpt-5.2-codex',
     description: 'Latest frontier agentic coding model.',
+  },
+  {
+    id: 'gpt-5.2',
+    label: 'gpt-5.2',
+    description: 'Latest frontier model with improvements across knowledge.',
   },
   {
     id: 'gpt-5.1-codex-max',
@@ -273,11 +293,6 @@ export const CODEX_MODELS: ModelInfo[] = [
     id: 'gpt-5.1-codex-mini',
     label: 'gpt-5.1-codex-mini',
     description: 'Optimized for codex. Cheaper, faster, but less capable.',
-  },
-  {
-    id: 'gpt-5.2',
-    label: 'gpt-5.2',
-    description: 'Latest frontier model with improvements across knowledge.',
   },
 ];
 
@@ -495,6 +510,11 @@ export interface ChatInputBoxProps {
   onInstallSdk?: () => void;
   /** Show toast message */
   addToast?: (message: string, type: 'info' | 'success' | 'warning' | 'error') => void;
+
+  /** Message queue items */
+  messageQueue?: QueuedMessage[];
+  /** Remove message from queue callback */
+  onRemoveFromQueue?: (id: string) => void;
 }
 
 /**
@@ -606,4 +626,23 @@ export interface DropdownItemProps {
   onClick?: () => void;
   /** Mouse enter callback */
   onMouseEnter?: () => void;
+}
+
+// ============================================================
+// Message Queue Types
+// ============================================================
+
+/**
+ * Queued message item
+ * When AI is processing (loading), new messages are queued here
+ */
+export interface QueuedMessage {
+  /** Unique identifier */
+  id: string;
+  /** Message content */
+  content: string;
+  /** Attachments (optional) */
+  attachments?: Attachment[];
+  /** Timestamp when queued */
+  queuedAt: number;
 }
